@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Shield, ChevronDown, Menu, X } from 'lucide-react';
+import { Plus, Shield, ChevronDown, Menu, X, Smartphone } from 'lucide-react';
 import { UserProfile, UserRole } from '../../types';
 import { getAllUsers, setCurrentUser } from '../../services/storage';
 import { QuilmesLogo } from '../common/QuilmesLogo';
@@ -8,6 +8,7 @@ interface NavbarProps {
   currentUser: UserProfile;
   activeSection: string;
   onOpenNewModal: () => void;
+  onOpenSyncModal: () => void;
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
   onNavigate: (section: string) => void;
@@ -17,6 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentUser,
   activeSection,
   onOpenNewModal,
+  onOpenSyncModal,
   mobileMenuOpen,
   setMobileMenuOpen,
   onNavigate
@@ -131,6 +133,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-purple-950 bg-gradient-to-r from-purple-100 via-emerald-50 to-purple-100 hover:from-purple-200 hover:to-emerald-100 border border-purple-200 rounded-lg shadow-xs transition-all active:scale-98"
             >
               <span>⭐ Vista Intendencia</span>
+            </button>
+
+            {/* Quick Button for Sync / Mobile Transfer */}
+            <button
+              type="button"
+              onClick={onOpenSyncModal}
+              title="Pasar datos entre computadora y celular / Descargar o Cargar Respaldo"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold text-purple-900 hover:text-purple-950 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg shadow-2xs transition-all active:scale-98 cursor-pointer"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="hidden sm:inline">Pasar a Celu</span>
             </button>
 
             {/* Primary Action Button (Only in Gestión mode) */}

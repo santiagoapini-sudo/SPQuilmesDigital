@@ -21,7 +21,8 @@ import {
   AlertCircle,
   FileSpreadsheet,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Smartphone
 } from 'lucide-react';
 
 interface InterventionsListProps {
@@ -30,6 +31,7 @@ interface InterventionsListProps {
   onEditIntervention: (intervention: Intervention) => void;
   onDeleteIntervention: (id: string) => void;
   onOpenNewModal: () => void;
+  onOpenSyncModal?: () => void;
   currentUser: UserProfile;
   initialStatusFilter?: string;
 }
@@ -40,6 +42,7 @@ export const InterventionsList: React.FC<InterventionsListProps> = ({
   onEditIntervention,
   onDeleteIntervention,
   onOpenNewModal,
+  onOpenSyncModal,
   currentUser,
   initialStatusFilter
 }) => {
@@ -173,10 +176,22 @@ export const InterventionsList: React.FC<InterventionsListProps> = ({
               </button>
             </div>
 
+            {onOpenSyncModal && (
+              <button
+                type="button"
+                onClick={onOpenSyncModal}
+                title="Transferir intervenciones a tu celular o guardar copia"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-purple-900 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg shadow-2xs transition-colors shrink-0 cursor-pointer"
+              >
+                <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="hidden sm:inline">Pasar a Celu</span>
+              </button>
+            )}
+
             {currentUser.role !== 'INTENDENTE' && (
               <button
                 onClick={onOpenNewModal}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-purple-900 hover:bg-purple-950 rounded-lg shadow-xs transition-colors shrink-0"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-purple-900 hover:bg-purple-950 rounded-lg shadow-xs transition-colors shrink-0 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5 text-cyan-300" />
                 <span>Nueva intervención</span>

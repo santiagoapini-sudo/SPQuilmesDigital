@@ -42,6 +42,7 @@ import { PreventiveMaintenance } from './components/preventivo/PreventiveMainten
 import { IntendenteCockpit } from './components/intendente/IntendenteCockpit';
 import { ReportsGenerator } from './components/informes/ReportsGenerator';
 import { ConfigAndArchitecture } from './components/configuracion/ConfigAndArchitecture';
+import { DataSyncModal } from './components/common/DataSyncModal';
 
 export default function App() {
   // Initialize storage on first load
@@ -59,6 +60,7 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [interventionsStatusFilter, setInterventionsStatusFilter] = useState<string>('all');
   const [toastNotification, setToastNotification] = useState<{ id: string; text: string; lat?: number; lng?: number } | null>(null);
+  const [syncModalOpen, setSyncModalOpen] = useState(false);
   
   // Modals state
   const [selectedInterventionId, setSelectedInterventionId] = useState<string | null>(null);
@@ -194,6 +196,7 @@ export default function App() {
         currentUser={currentUser}
         activeSection={activeSection}
         onOpenNewModal={() => handleOpenNewModal()}
+        onOpenSyncModal={() => setSyncModalOpen(true)}
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
         onNavigate={setActiveSection}
@@ -275,6 +278,7 @@ export default function App() {
               onEditIntervention={handleEditIntervention}
               onDeleteIntervention={handleDeleteIntervention}
               onOpenNewModal={() => handleOpenNewModal()}
+              onOpenSyncModal={() => setSyncModalOpen(true)}
               currentUser={currentUser}
               initialStatusFilter={interventionsStatusFilter}
             />
@@ -377,6 +381,14 @@ export default function App() {
           handleEditIntervention(item);
         }}
         currentUser={currentUser}
+      />
+
+      {/* Compu ⇄ Celular Synchronization & Backup Modal */}
+      <DataSyncModal
+        isOpen={syncModalOpen}
+        onClose={() => setSyncModalOpen(false)}
+        currentUser={currentUser}
+        onSyncSuccess={syncData}
       />
 
       {/* Real-time Map Projection Notification Toast */}
