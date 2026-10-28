@@ -31,6 +31,7 @@ interface InterventionsListProps {
   onDeleteIntervention: (id: string) => void;
   onOpenNewModal: () => void;
   currentUser: UserProfile;
+  initialStatusFilter?: string;
 }
 
 export const InterventionsList: React.FC<InterventionsListProps> = ({
@@ -39,14 +40,22 @@ export const InterventionsList: React.FC<InterventionsListProps> = ({
   onEditIntervention,
   onDeleteIntervention,
   onOpenNewModal,
-  currentUser
+  currentUser,
+  initialStatusFilter
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>(initialStatusFilter || 'all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
+
+  // Sync when initialStatusFilter changes (e.g. from clicking cards on ExecutiveDashboard)
+  React.useEffect(() => {
+    if (initialStatusFilter !== undefined) {
+      setSelectedStatus(initialStatusFilter);
+    }
+  }, [initialStatusFilter]);
 
   const filtered = interventions.filter(item => {
     // Search
@@ -59,7 +68,35 @@ export const InterventionsList: React.FC<InterventionsListProps> = ({
       (item.cuadrillaName && item.cuadrillaName.toLowerCase().includes(term));
 
     if (!matchesSearch) return false;
-    if (selectedStatus !== 'all' && item.status !== selectedStatus) return false;
+
+    // Smart Status Filter
+    if (selectedStatus !== 'all') {
+      if (selectedStatus === 'pendientes') {
+        const isPending = 
+          item.status === 'Registrada' || 
+          item.status === 'Pendiente de evaluación' || 
+          item.status === 'Priorizada';
+        if (!isPending) return false;
+      } else if (selectedStatus === 'finalizadas') {
+        const isFinal = 
+          item.status === 'Verificada y cerrada' || 
+          item.status === 'Finalizada, pendiente de verificación';
+        if (!isFinal) return false;
+      } else if (selectedStatus === 'vencidas') {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const isClosed = 
+          item.status === 'Verificada y cerrada' || 
+          item.status === 'Finalizada, pendiente de verificación';
+        const isOverdue = !isClosed && (
+          (item.estimatedCompletionDate && item.estimatedCompletionDate < todayStr) ||
+          (item.scheduledDate && item.scheduledDate < todayStr && item.status === 'Programada')
+        );
+        if (!isOverdue) return false;
+      } else if (item.status !== selectedStatus) {
+        return false;
+      }
+    }
+
     if (selectedCategory !== 'all' && item.category !== selectedCategory) return false;
     if (selectedPriority !== 'all' && item.priority !== selectedPriority) return false;
     if (selectedNeighborhood !== 'all' && item.neighborhood !== selectedNeighborhood) return false;
@@ -171,14 +208,17 @@ export const InterventionsList: React.FC<InterventionsListProps> = ({
               className="w-full text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-hidden focus:border-purple-600 font-medium"
             >
               <option value="all">Todos los estados</option>
+              <option value="pendientes">⚡ Pendientes (Eval., Reg., Priorizadas)</option>
               <option value="Registrada">Registrada</option>
               <option value="Pendiente de evaluación">Pendiente de evaluación</option>
               <option value="Programada">Programada</option>
               <option value="Asignada">Asignada</option>
               <option value="En ejecución">En ejecución</option>
               <option value="Pendiente de materiales">Pendiente de materiales</option>
-              <option value="Finalizada, pendiente de verificación">Finalizada (a verificar)</option>
+              <option value="Finalizada, pendiente de verificación">Finalizada (A verificar)</option>
               <option value="Verificada y cerrada">Verificada y cerrada</option>
+              <option value="finalizadas">✅ Todas las finalizadas</option>
+              <option value="vencidas">⚠️ Tareas vencidas</option>
             </select>
           </div>
 
@@ -238,6 +278,29 @@ export const InterventionsList: React.FC<InterventionsListProps> = ({
           </div>
 
         </div>
+
+        {/* Active Filter notification banner */}
+        {selectedStatus !== 'all' && (
+          <div className="mt-3 flex items-center justify-between text-xs bg-purple-50 text-purple-950 border border-purple-200 px-3 py-2 rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-purple-700 animate-pulse"></span>
+              <span className="text-slate-600">Filtro aplicado desde el Panel:</span>
+              <span className="font-bold bg-white px-2 py-0.5 rounded border border-purple-300 text-purple-900">
+                {selectedStatus === 'pendientes' ? '⚡ Pendientes de evaluación / priorización' :
+                 selectedStatus === 'finalizadas' ? '✅ Todas las finalizadas y cerradas' :
+                 selectedStatus === 'vencidas' ? '⚠️ Tareas fuera de plazo / vencidas' : selectedStatus}
+              </span>
+              <span className="text-slate-500 font-mono">({filtered.length} resultados)</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSelectedStatus('all')}
+              className="text-purple-700 hover:text-purple-950 font-bold text-xs underline cursor-pointer"
+            >
+              Mostrar todas las intervenciones ✕
+            </button>
+          </div>
+        )}
 
         {/* Counter of results */}
         <div className="mt-2.5 flex items-center justify-between text-[11px] text-slate-500">

@@ -57,6 +57,19 @@ const NEIGHBORHOODS: QuilmesNeighborhood[] = [
   'Villa La Florida'
 ];
 
+const NEIGHBORHOOD_COORDS: Record<QuilmesNeighborhood, { lat: number; lng: number }> = {
+  'Quilmes Centro': { lat: -34.7240, lng: -58.2540 },
+  'Quilmes Oeste': { lat: -34.7350, lng: -58.2820 },
+  'Quilmes Este / Ribera': { lat: -34.7180, lng: -58.2380 },
+  'Bernal Este': { lat: -34.7080, lng: -58.2780 },
+  'Bernal Oeste': { lat: -34.7150, lng: -58.3050 },
+  'Don Bosco': { lat: -34.7010, lng: -58.2850 },
+  'Ezpeleta Este': { lat: -34.7480, lng: -58.2430 },
+  'Ezpeleta Oeste': { lat: -34.7520, lng: -58.2680 },
+  'San Francisco Solano': { lat: -34.7730, lng: -58.3180 },
+  'Villa La Florida': { lat: -34.7550, lng: -58.3080 }
+};
+
 const AREAS = [
   'Dirección General de Vialidad Urbana y Pavimentos',
   'Dirección de Hidráulica, Sumideros y Pluviales',
@@ -341,12 +354,34 @@ export const InterventionModal: React.FC<InterventionModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Localidad / Barrio *
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Localidad / Barrio *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (NEIGHBORHOOD_COORDS[neighborhood]) {
+                        setLat(NEIGHBORHOOD_COORDS[neighborhood].lat);
+                        setLng(NEIGHBORHOOD_COORDS[neighborhood].lng);
+                      }
+                    }}
+                    title="Ajustar coordenadas al centro del barrio"
+                    className="text-[10px] text-purple-700 hover:text-purple-900 font-bold underline cursor-pointer"
+                  >
+                    📍 Centrar
+                  </button>
+                </div>
                 <select
                   value={neighborhood}
-                  onChange={(e) => setNeighborhood(e.target.value as QuilmesNeighborhood)}
+                  onChange={(e) => {
+                    const newBarrio = e.target.value as QuilmesNeighborhood;
+                    setNeighborhood(newBarrio);
+                    if (!initialData && !initialCoords && NEIGHBORHOOD_COORDS[newBarrio]) {
+                      setLat(NEIGHBORHOOD_COORDS[newBarrio].lat);
+                      setLng(NEIGHBORHOOD_COORDS[newBarrio].lng);
+                    }
+                  }}
                   required
                   className="w-full text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-hidden focus:border-purple-600 font-medium"
                 >
@@ -383,8 +418,25 @@ export const InterventionModal: React.FC<InterventionModalProps> = ({
               </div>
 
               <div className="flex items-end">
-                <div className="text-[11px] text-slate-500 bg-slate-100 p-2 rounded-lg w-full">
-                  Coordenadas verificadas para el Partido de Quilmes.
+                <div className="text-[11px] text-slate-500 bg-slate-100 p-2 rounded-lg w-full flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>Coordenadas oficiales de {neighborhood}.</span>
+                </div>
+              </div>
+
+              {/* Direct GIS Projection Confirmation Banner */}
+              <div className="md:col-span-3 bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-3">
+                <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+                  GIS
+                </div>
+                <div className="text-xs">
+                  <div className="font-bold text-emerald-950 flex items-center gap-1.5">
+                    <span>Proyección Inmediata en el Mapa Operativo</span>
+                    <span className="text-[10px] font-mono bg-emerald-200 text-emerald-900 px-1.5 py-0.2 rounded font-bold">DIRECTO</span>
+                  </div>
+                  <p className="text-emerald-800 text-[11px] mt-0.5 leading-relaxed">
+                    Al guardar este formulario, la intervención se insertará <strong>automáticamente como un marcador interactivo en el Mapa</strong> con el color asignado a <strong>{category}</strong> ({lat.toFixed(4)}, {lng.toFixed(4)}), permitiendo su seguimiento territorial inmediato.
+                  </p>
                 </div>
               </div>
             </div>

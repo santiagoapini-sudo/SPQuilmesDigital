@@ -57,12 +57,14 @@ interface OperativeMapProps {
   interventions: Intervention[];
   onSelectIntervention: (id: string) => void;
   onOpenNewModalWithCoords: (lat: number, lng: number, addressHint?: string) => void;
+  isReadOnly?: boolean;
 }
 
 export const OperativeMap: React.FC<OperativeMapProps> = ({
   interventions,
   onSelectIntervention,
-  onOpenNewModalWithCoords
+  onOpenNewModalWithCoords,
+  isReadOnly = false
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);

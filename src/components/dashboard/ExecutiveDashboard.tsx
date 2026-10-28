@@ -26,7 +26,7 @@ interface ExecutiveDashboardProps {
   interventions: Intervention[];
   lastUpdated: string;
   onSelectIntervention: (id: string) => void;
-  onNavigate: (section: string) => void;
+  onNavigate: (section: string, statusFilter?: string) => void;
   onOpenNewModal: () => void;
   currentUser: UserProfile;
 }
@@ -179,101 +179,165 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         </div>
       </div>
 
-      {/* 8 Primary Key Metric Cards */}
+      {/* 8 Primary Key Metric Cards — Interactive Buttons */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
         
         {/* Card 1: Total */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-          <div className="text-[11px] font-semibold text-slate-500">Total registradas</div>
+        <button
+          type="button"
+          onClick={() => onNavigate('intervenciones', 'all')}
+          title="Ver todas las intervenciones registradas"
+          className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs hover:border-purple-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group text-left"
+        >
+          <div className="text-[11px] font-semibold text-slate-500 group-hover:text-purple-800 transition-colors">Total registradas</div>
           <div className="mt-1 text-2xl font-extrabold text-slate-900 font-mono tabular-nums">
             {total}
           </div>
-          <div className="mt-1 text-[10px] text-slate-400">100% de la base</div>
-        </div>
+          <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-between">
+            <span>100% de la base</span>
+            <span className="opacity-0 group-hover:opacity-100 text-purple-700 font-bold transition-opacity">Ver →</span>
+          </div>
+        </button>
 
         {/* Card 2: Pendientes */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-          <div className="text-[11px] font-semibold text-slate-600 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => onNavigate('intervenciones', 'pendientes')}
+          title="Filtrar intervenciones pendientes de evaluación y priorización"
+          className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs hover:border-amber-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group text-left"
+        >
+          <div className="text-[11px] font-semibold text-slate-600 group-hover:text-amber-800 transition-colors flex items-center justify-between">
             <span>Pendientes</span>
             <Clock className="w-3.5 h-3.5 text-amber-500" />
           </div>
           <div className="mt-1 text-2xl font-extrabold text-amber-600 font-mono tabular-nums">
             {pendingCount}
           </div>
-          <div className="mt-1 text-[10px] text-slate-400">Por priorizar o evaluar</div>
-        </div>
+          <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-between">
+            <span>Por priorizar</span>
+            <span className="opacity-0 group-hover:opacity-100 text-amber-700 font-bold transition-opacity">Ver →</span>
+          </div>
+        </button>
 
         {/* Card 3: Programadas */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-          <div className="text-[11px] font-semibold text-slate-600 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => onNavigate('intervenciones', 'Programada')}
+          title="Ver intervenciones programadas en agenda"
+          className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs hover:border-indigo-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group text-left"
+        >
+          <div className="text-[11px] font-semibold text-slate-600 group-hover:text-indigo-800 transition-colors flex items-center justify-between">
             <span>Programadas</span>
             <Calendar className="w-3.5 h-3.5 text-indigo-500" />
           </div>
           <div className="mt-1 text-2xl font-extrabold text-indigo-600 font-mono tabular-nums">
             {scheduledCount}
           </div>
-          <div className="mt-1 text-[10px] text-slate-400">Con fecha y cuadrilla</div>
-        </div>
+          <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-between">
+            <span>Con cuadrilla</span>
+            <span className="opacity-0 group-hover:opacity-100 text-indigo-700 font-bold transition-opacity">Ver →</span>
+          </div>
+        </button>
 
         {/* Card 4: En ejecución */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-          <div className="text-[11px] font-semibold text-slate-600 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => onNavigate('intervenciones', 'En ejecución')}
+          title="Ver obras y cuadrillas en ejecución activa"
+          className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs hover:border-cyan-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group text-left"
+        >
+          <div className="text-[11px] font-semibold text-slate-600 group-hover:text-cyan-800 transition-colors flex items-center justify-between">
             <span>En ejecución</span>
             <Activity className="w-3.5 h-3.5 text-cyan-600" />
           </div>
           <div className="mt-1 text-2xl font-extrabold text-cyan-700 font-mono tabular-nums">
             {inExecutionCount}
           </div>
-          <div className="mt-1 text-[10px] text-slate-400">Cuadrillas activas</div>
-        </div>
+          <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-between">
+            <span>En campo</span>
+            <span className="opacity-0 group-hover:opacity-100 text-cyan-700 font-bold transition-opacity">Ver →</span>
+          </div>
+        </button>
 
         {/* Card 5: Finalizadas */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-          <div className="text-[11px] font-semibold text-slate-600 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => onNavigate('intervenciones', 'finalizadas')}
+          title="Ver todas las intervenciones finalizadas y verificadas"
+          className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group text-left"
+        >
+          <div className="text-[11px] font-semibold text-slate-600 group-hover:text-emerald-800 transition-colors flex items-center justify-between">
             <span>Finalizadas</span>
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
           </div>
           <div className="mt-1 text-2xl font-extrabold text-emerald-700 font-mono tabular-nums">
             {totalFinished}
           </div>
-          <div className="mt-1 text-[10px] text-slate-400">Obras terminadas</div>
-        </div>
+          <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-between">
+            <span>Obras listas</span>
+            <span className="opacity-0 group-hover:opacity-100 text-emerald-700 font-bold transition-opacity">Ver →</span>
+          </div>
+        </button>
 
         {/* Card 6: Pendiente verificación */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-          <div className="text-[11px] font-semibold text-slate-600 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => onNavigate('intervenciones', 'Finalizada, pendiente de verificación')}
+          title="Ver intervenciones terminadas pendientes de verificación por inspector"
+          className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs hover:border-purple-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group text-left"
+        >
+          <div className="text-[11px] font-semibold text-slate-600 group-hover:text-purple-800 transition-colors flex items-center justify-between">
             <span>A verificar</span>
             <AlertCircle className="w-3.5 h-3.5 text-purple-600" />
           </div>
           <div className="mt-1 text-2xl font-extrabold text-purple-800 font-mono tabular-nums">
             {finishedPendingVerifCount}
           </div>
-          <div className="mt-1 text-[10px] text-slate-400">Requiere inspector</div>
-        </div>
+          <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-between">
+            <span>Inspección</span>
+            <span className="opacity-0 group-hover:opacity-100 text-purple-700 font-bold transition-opacity">Ver →</span>
+          </div>
+        </button>
 
         {/* Card 7: Tareas vencidas */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-          <div className="text-[11px] font-semibold text-slate-600 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => onNavigate('intervenciones', 'vencidas')}
+          title="Ver intervenciones que han superado el plazo estimado"
+          className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs hover:border-rose-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group text-left"
+        >
+          <div className="text-[11px] font-semibold text-slate-600 group-hover:text-rose-800 transition-colors flex items-center justify-between">
             <span>Vencidas</span>
             <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
           </div>
           <div className="mt-1 text-2xl font-extrabold text-rose-600 font-mono tabular-nums">
             {overdueCount}
           </div>
-          <div className="mt-1 text-[10px] text-slate-400">Fuera de plazo</div>
-        </div>
+          <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-between">
+            <span>Fuera de plazo</span>
+            <span className="opacity-0 group-hover:opacity-100 text-rose-700 font-bold transition-opacity">Ver →</span>
+          </div>
+        </button>
 
         {/* Card 8: Cumplimiento */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs bg-gradient-to-b from-purple-50/40 to-transparent">
-          <div className="text-[11px] font-semibold text-purple-900 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => onNavigate('intervenciones', 'Verificada y cerrada')}
+          title="Ver intervenciones verificadas y cerradas con acta conforme"
+          className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs bg-gradient-to-b from-purple-50/40 to-transparent hover:border-purple-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group text-left"
+        >
+          <div className="text-[11px] font-semibold text-purple-900 group-hover:text-purple-950 transition-colors flex items-center justify-between">
             <span>Cumplimiento</span>
             <CheckCheck className="w-3.5 h-3.5 text-purple-700" />
           </div>
           <div className="mt-1 text-2xl font-extrabold text-purple-900 font-mono tabular-nums">
             {complianceRate}%
           </div>
-          <div className="mt-1 text-[10px] text-purple-800 font-medium">Verificadas y cerradas</div>
-        </div>
+          <div className="mt-1 text-[10px] text-purple-800 font-medium flex items-center justify-between">
+            <span>Cerradas</span>
+            <span className="opacity-0 group-hover:opacity-100 text-purple-700 font-bold transition-opacity">Ver →</span>
+          </div>
+        </button>
 
       </div>
 

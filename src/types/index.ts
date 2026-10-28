@@ -1,7 +1,11 @@
 export type UserRole = 
   | 'ADMINISTRADOR'
   | 'LECTOR'
-  | 'INTENDENTE';
+  | 'INTENDENTE'
+  | 'SECRETARIO'
+  | 'DIRECTOR'
+  | 'SUPERVISOR'
+  | 'OPERADOR';
 
 export interface UserProfile {
   id: string;

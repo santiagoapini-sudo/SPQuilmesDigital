@@ -57,6 +57,8 @@ export default function App() {
   // UI state
   const [activeSection, setActiveSection] = useState<string>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [interventionsStatusFilter, setInterventionsStatusFilter] = useState<string>('all');
+  const [toastNotification, setToastNotification] = useState<{ id: string; text: string; lat?: number; lng?: number } | null>(null);
   
   // Modals state
   const [selectedInterventionId, setSelectedInterventionId] = useState<string | null>(null);
@@ -98,6 +100,14 @@ export default function App() {
   // Selected item detail
   const currentSelectedIntervention = interventions.find(i => i.id === selectedInterventionId) || null;
 
+  // Navigation with optional status filter
+  const handleNavigateWithFilter = (section: string, statusFilter?: string) => {
+    if (statusFilter !== undefined) {
+      setInterventionsStatusFilter(statusFilter);
+    }
+    setActiveSection(section);
+  };
+
   // Handlers
   const handleOpenNewModal = (coords?: { lat: number; lng: number }) => {
     setEditingIntervention(null);
@@ -112,7 +122,16 @@ export default function App() {
   };
 
   const handleSaveIntervention = (data: Partial<Intervention>) => {
-    saveIntervention(data, currentUser);
+    const saved = saveIntervention(data, currentUser);
+    setToastNotification({
+      id: saved.id,
+      text: saved.title || `Intervención de ${saved.category} en ${saved.neighborhood}`,
+      lat: saved.coordinates?.lat,
+      lng: saved.coordinates?.lng
+    });
+    setTimeout(() => {
+      setToastNotification(prev => (prev?.id === saved.id ? null : prev));
+    }, 8000);
   };
 
   const handleVerifyIntervention = (id: string, notes: string, certNumber?: string) => {
@@ -220,6 +239,7 @@ export default function App() {
               interventions={interventions}
               onSelectIntervention={setSelectedInterventionId}
               onOpenNewModalWithCoords={(lat, lng) => handleOpenNewModal({ lat, lng })}
+              isReadOnly={currentUser.role === 'LECTOR'}
             />
           </div>
         ) : (
@@ -231,7 +251,7 @@ export default function App() {
               interventions={interventions}
               lastUpdated={lastUpdated}
               onSelectIntervention={setSelectedInterventionId}
-              onNavigate={setActiveSection}
+              onNavigate={handleNavigateWithFilter}
               onOpenNewModal={() => handleOpenNewModal()}
               currentUser={currentUser}
             />
@@ -243,6 +263,7 @@ export default function App() {
               interventions={interventions}
               onSelectIntervention={setSelectedInterventionId}
               onOpenNewModalWithCoords={(lat, lng) => handleOpenNewModal({ lat, lng })}
+              isReadOnly={currentUser.role === 'LECTOR'}
             />
           )}
 
@@ -255,6 +276,7 @@ export default function App() {
               onDeleteIntervention={handleDeleteIntervention}
               onOpenNewModal={() => handleOpenNewModal()}
               currentUser={currentUser}
+              initialStatusFilter={interventionsStatusFilter}
             />
           )}
 
@@ -356,6 +378,43 @@ export default function App() {
         }}
         currentUser={currentUser}
       />
+
+      {/* Real-time Map Projection Notification Toast */}
+      {toastNotification && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl border border-purple-500/50 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 max-w-md">
+          <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
+            🗺️
+          </div>
+          <div className="text-xs flex-1 min-w-0">
+            <div className="font-bold text-white flex items-center gap-1.5">
+              <span>{toastNotification.id}</span>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-semibold border border-emerald-500/30">
+                PROYECTADA EN MAPA
+              </span>
+            </div>
+            <div className="text-slate-300 text-[11px] mt-0.5 truncate">
+              {toastNotification.text}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveSection('mapa');
+              setToastNotification(null);
+            }}
+            className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shrink-0 shadow-xs transition-colors cursor-pointer"
+          >
+            Ver en Mapa →
+          </button>
+          <button
+            type="button"
+            onClick={() => setToastNotification(null)}
+            className="text-slate-400 hover:text-white p-1 text-xs font-bold cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
     </div>
   );
