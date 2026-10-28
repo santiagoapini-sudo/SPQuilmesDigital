@@ -1,0 +1,6 @@
+{
+  "name": "QUILMES 360 - Gestión de Servicios Públicos",
+  "description": "Sistema Integral de Gestión de Servicios Públicos — Municipalidad de Quilmes (Plan 2027). Planificación, cuadrillas, intervenciones, mapa operativo e informes ejecutivos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
